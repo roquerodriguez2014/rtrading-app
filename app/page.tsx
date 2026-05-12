@@ -99,7 +99,7 @@ export default function LoginPage() {
             className="w-full p-3 rounded-xl bg-[#0a0d14] border border-white/10 focus:border-violet-400 outline-none text-white"
           />
 
-          <div className="relative">
+        <div className="relative">
   <input
     type={showPassword ? "text" : "password"}
     placeholder="Contraseña"
@@ -113,14 +113,9 @@ export default function LoginPage() {
     onClick={() => setShowPassword(!showPassword)}
     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
   >
-    {showPassword ? "🙈" : "👁️"}
+    {showPassword ? "👁️‍🗨️" : "👁️"}
   </button>
 </div>
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 rounded-xl bg-[#0a0d14] border border-white/10 focus:border-violet-400 outline-none text-white"
-          />
-
           <button
             type="submit"
             disabled={loading}
