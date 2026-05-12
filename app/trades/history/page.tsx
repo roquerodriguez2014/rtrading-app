@@ -11,8 +11,10 @@ type Trade = {
   result: string;
   notes: string;
   emotion: string;
-  file: string | null;
-  date: string;
+  file_url: string | null;
+created_at: string;
+trade_date: string;
+trade_time: string;
 };
 
 export default function TradeHistoryPage() {
@@ -107,10 +109,10 @@ export default function TradeHistoryPage() {
                 </div>
               </div>
 
-              {trade.file && (
+              {trade.file_url && (
                 <div className="w-[220px] shrink-0">
                   <img
-                    src={trade.file}
+                    src={trade.file_url}
                     alt="Captura del trade"
                     className="w-full rounded-xl border border-white/[0.06] object-cover"
                   />
@@ -235,9 +237,10 @@ export default function TradeHistoryPage() {
         </div>
 
         <div>
-          {selectedTrade.file ? (
+          {selectedTrade.file_url ? (
+
             <img
-              src={selectedTrade.file}
+              src={selectedTrade.file_url}
               alt="Trade"
               className="w-full rounded-2xl border border-white/[0.06]"
             />
