@@ -139,7 +139,7 @@ async function handleAvatar(
 
   const { error: profileError } = await supabase
     .from("profiles")
-    .upsert({
+    .insert({
       id: user.id,
       email: user.email,
       avatar_url: publicUrl,
