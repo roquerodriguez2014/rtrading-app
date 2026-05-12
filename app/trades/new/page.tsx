@@ -13,7 +13,8 @@ export default function NewTrade() {
   const [result,  setResult]  = useState("tp");
   const [notes,   setNotes]   = useState("");
   const [emotion, setEmotion] = useState("");
-  const [file,    setFile]    = useState<string | null>(null);
+  const [file, setFile] = useState<string | null>(null);
+const [selectedFile, setSelectedFile] = useState<File | null>(null);
   useEffect(() => {
   const editingTrade = localStorage.getItem("editingTrade");
 
@@ -31,14 +32,21 @@ export default function NewTrade() {
   }
 }, []);
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setFile(reader.result as string);
-    reader.readAsDataURL(selected);
-  }
+ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const selected = e.target.files?.[0];
 
+  if (!selected) return;
+
+  setSelectedFile(selected);
+
+  const reader = new FileReader();
+
+  reader.onloadend = () => {
+    setFile(reader.result as string);
+  };
+
+  reader.readAsDataURL(selected);
+}
  async function saveTrade() {
   const {
     data: { user },
@@ -51,6 +59,33 @@ export default function NewTrade() {
     return;
   }
 
+  let fileUrl: string | null = null;
+  console.log("FILE ACTUAL:", file);
+
+alert(selectedFile ? "Hay archivo" : "NO hay archivo");
+  if (selectedFile) {
+  const fileExt = selectedFile.name.split(".").pop();
+
+  const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("trade-files")
+    .upload(filePath, selectedFile);
+
+ if (uploadError) {
+  console.error("UPLOAD ERROR:", uploadError);
+  alert("Error subiendo imagen: " + uploadError.message);
+  return;
+}
+  const {
+    data: { publicUrl },
+  } = supabase.storage
+    .from("trade-files")
+    .getPublicUrl(filePath);
+
+  fileUrl = publicUrl;
+}
+
   const { error } = await supabase.from("trades").insert({
     user_id: user.id,
     asset,
@@ -60,7 +95,7 @@ export default function NewTrade() {
     result,
     notes,
     emotion,
-    file_url: null,
+    file_url: fileUrl,
     trade_date: new Date().toISOString().slice(0, 10),
     trade_time: new Date().toTimeString().slice(0, 8),
     session_name: "Sin definir",
@@ -72,6 +107,7 @@ export default function NewTrade() {
   }
 
   window.location.href = "/dashboard";
+
 }
   const inputClass = "w-full px-3 py-2.5 bg-[#1a1d27] border border-white/[0.06] rounded-xl text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-violet-500/50 transition";
   const labelClass = "text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block";
