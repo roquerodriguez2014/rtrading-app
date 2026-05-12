@@ -4,17 +4,30 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Trade = {
+  id?: string;
+  user_id?: string;
+
   asset: string;
   type: string;
-  entry: string;
-  exit: string;
+
+  entry: number | string;
+  exit: number | string;
+
   result: string;
+
+  rr?: number | null;
+  pnl?: number | null;
+
   notes: string;
   emotion: string;
+
   file_url?: string | null;
-created_at: string;
-trade_date: string;
-trade_time: string;
+
+  trade_date?: string;
+  trade_time?: string;
+  session_name?: string;
+
+  created_at?: string;
 };
 
 export default function TradeHistoryPage() {
@@ -94,11 +107,11 @@ export default function TradeHistoryPage() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
-                  <Info label="Entrada" value={trade.entry} />
-                  <Info label="Salida" value={trade.exit} />
+                 <Info label="Entrada" value={String(trade.entry)} />
+<Info label="Salida" value={String(trade.exit)} />
                   <Info
                     label="Fecha"
-                    value={new Date(trade.date).toLocaleString()}
+                   value={new Date(trade.created_at || "").toLocaleString()}
                   />
                   <Info label="Resultado" value={trade.result.toUpperCase()} />
                 </div>
@@ -177,7 +190,7 @@ export default function TradeHistoryPage() {
   <button
     onClick={() => {
       const updatedTrades = trades.filter(
-        (t) => t.date !== selectedTrade.date
+   (t) => t.created_at !== selectedTrade.created_at
       );
 
       localStorage.setItem(
@@ -209,7 +222,7 @@ export default function TradeHistoryPage() {
               <p><strong>Salida:</strong> {selectedTrade.exit}</p>
               <p>
                 <strong>Fecha:</strong>{" "}
-                {new Date(selectedTrade.date).toLocaleString()}
+               {new Date(selectedTrade.created_at || "").toLocaleString()}
               </p>
             </div>
           </div>
