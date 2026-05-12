@@ -11,7 +11,7 @@ type Trade = {
   result: string;
   notes: string;
   emotion: string;
-  file_url: string | null;
+  file_url?: string | null;
 created_at: string;
 trade_date: string;
 trade_time: string;
