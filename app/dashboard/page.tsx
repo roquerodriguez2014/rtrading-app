@@ -76,11 +76,15 @@ useEffect(() => {
       return;
     }
 
-    const savedAvatar = localStorage.getItem("avatar");
+   const { data: profile } = await supabase
+  .from("profiles")
+  .select("avatar_url")
+  .eq("id", session.user.id)
+  .single();
 
-    if (savedAvatar) {
-      setAvatar(savedAvatar);
-    }
+if (profile?.avatar_url) {
+  setAvatar(profile.avatar_url);
+}
 
     const { data, error } = await supabase
       .from("trades")
@@ -99,18 +103,55 @@ useEffect(() => {
     localStorage.removeItem("user");
     return;
   }
+async function handleAvatar(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = e.target.files?.[0];
 
-  function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setAvatar(result);
-      localStorage.setItem("avatar", result);
-    };
-    reader.readAsDataURL(file);
+  if (!file) return;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  const fileExt = file.name.split(".").pop();
+
+  const filePath = `${user.id}/avatar.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(filePath, file, {
+      upsert: true,
+    });
+
+  if (uploadError) {
+    alert(uploadError.message);
+    return;
   }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(filePath);
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      email: user.email,
+      avatar_url: publicUrl,
+    });
+
+  if (profileError) {
+    alert(profileError.message);
+    return;
+  }
+
+  setAvatar(publicUrl);
+}
 const recentTrades = [...savedTrades]
   .reverse()
   .slice(0, 4);
