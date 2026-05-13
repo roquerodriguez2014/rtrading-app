@@ -54,14 +54,13 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
+    alert("Tenés que iniciar sesión.");
     window.location.href = "/";
     return;
   }
 
   let fileUrl: string | null = null;
   console.log("FILE ACTUAL:", file);
-
-alert(selectedFile ? "Hay archivo" : "NO hay archivo");
   if (selectedFile) {
   const fileExt = selectedFile.name.split(".").pop();
 
