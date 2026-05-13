@@ -5,6 +5,20 @@ import { useRouter } from "next/navigation";
 
 export default function NewTrade() {
   const router = useRouter();
+  const assetSuggestions = [
+  "BTCUSDT",
+  "ETHUSDT",
+  "EURUSD",
+  "GBPUSD",
+  "XAUUSD",
+  "US30",
+  "NAS100",
+  "SPX500",
+];
+
+const filteredAssets = assetSuggestions.filter((item) =>
+  item.toLowerCase().includes(asset.toLowerCase())
+);
 
   const [asset,   setAsset]   = useState("");
   const [type,    setType]    = useState("compra");
@@ -179,15 +193,31 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
             <p className="text-[13px] font-semibold mb-4">Datos de la operación</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-              <div>
-                <label className={labelClass}>Activo</label>
-                <input
-                  placeholder="BTC, EURUSD..."
-                  value={asset}
-                  onChange={(e) => setAsset(e.target.value)}
-                  className={inputClass}
-                />
-              </div>
+              <div className="relative">
+  <label className={labelClass}>Activo</label>
+
+  <input
+    placeholder="BTC, EURUSD..."
+    value={asset}
+    onChange={(e) => setAsset(e.target.value.toUpperCase())}
+    className={inputClass}
+  />
+
+  {asset && filteredAssets.length > 0 && (
+    <div className="absolute z-50 mt-1 w-full bg-[#1a1d27] border border-white/[0.08] rounded-xl overflow-hidden">
+      {filteredAssets.map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => setAsset(item)}
+          className="w-full text-left px-3 py-2 text-[13px] text-gray-300 hover:bg-violet-600/20 hover:text-white transition"
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
 
               <div>
                 <label className={labelClass}>Tipo</label>
