@@ -258,12 +258,7 @@ const averageRR = totalTrades
 </button>
 <NavSection label="Config" />
 <NavItem label="⊙  Integración" onClick={() => (window.location.href = "/integration")} />
-  <button
-  onClick={logout}
-  className="w-full mt-6 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/20 transition"
->
-  Cerrar sesión
-</button>
+  
         {/* Upgrade banner */}
         <div className="mt-3 rounded-[14px] p-3.5 bg-gradient-to-br from-violet-900/30 to-violet-800/10 border border-violet-500/20">
           <p className="text-[13px] font-semibold text-white mb-1">Modo básico</p>
