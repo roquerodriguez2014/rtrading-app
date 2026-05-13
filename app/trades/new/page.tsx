@@ -54,7 +54,6 @@ const [selectedFile, setSelectedFile] = useState<File | null>(null);
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    alert("Tenés que iniciar sesión.");
     window.location.href = "/";
     return;
   }
