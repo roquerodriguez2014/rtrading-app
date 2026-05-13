@@ -596,7 +596,7 @@ const averageRR = totalTrades
   </a>
   <button
   onClick={logout}
-  className="flex flex-col items-center gap-1 text-[10px] text-red-400"
+  className=" md:hidden flex flex-col items-center gap-1 text-[10px] text-red-400"
 >
   <span className="text-lg">⎋</span>
   Salir
