@@ -562,13 +562,7 @@ const averageRR = totalTrades
       </div>
     <div className="xl:hidden fixed bottom-0 left-0 right-0 h-[72px] bg-[#13161e]/95 backdrop-blur-xl border-t border-white/[0.06] flex items-center justify-around z-[9999] pointer-events-auto">
 
-  <a
-    href="/dashboard"
-    className="flex flex-col items-center gap-1 text-[10px] text-violet-400"
-  >
-    <span className="text-lg">⌂</span>
-    Dashboard
-  </a>
+  
 
   <a
     href="/trades/history"
