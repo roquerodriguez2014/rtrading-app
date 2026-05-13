@@ -2301,7 +2301,7 @@ export default function ConceptosPage() {
         <aside className="rounded-xl border border-slate-800 bg-[#050a14]/95 p-5 shadow-2xl xl:sticky xl:top-4 xl:h-[calc(100vh-32px)]">
           <div className="mb-5 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-700 font-black">R</div>
-            <h1 className="text-4xl font-black tracking-tight text-violet-500">ROQUE</h1>
+            <h1 className="text-4xl font-black tracking-tight text-violet-500">aprende desde cero</h1>
           </div>
           <h2 className="mb-4 text-xl font-black uppercase tracking-wide text-slate-100">Conceptos de trading</h2>
           <input
