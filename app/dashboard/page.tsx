@@ -250,12 +250,7 @@ const averageRR = totalTrades
 <NavItem label="◎  Activos" onClick={() => (window.location.href = "/assets")} />
 <NavItem label="＋  Nueva op." onClick={() => (window.location.href = "/trades/new")} />
 <NavItem label="❋  Conceptos" onClick={() => (window.location.href = "/conceptos")} />
-<button
-  onClick={logout}
-  className="w-full mt-6 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/20 transition"
->
-  Cerrar sesión
-</button>
+
 <NavSection label="Config" />
 <NavItem label="⊙  Integración" onClick={() => (window.location.href = "/integration")} />
   <button
