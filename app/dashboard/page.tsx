@@ -99,10 +99,13 @@ if (profile?.avatar_url) {
 
   checkAuth();
 }, []);
-  function logout() {
-    localStorage.removeItem("user");
-    return;
-  }
+ async function logout() {
+  await supabase.auth.signOut();
+
+  localStorage.removeItem("user");
+
+  window.location.href = "/";
+}
 async function handleAvatar(
   e: React.ChangeEvent<HTMLInputElement>
 ) {
