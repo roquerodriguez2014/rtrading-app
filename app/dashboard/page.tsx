@@ -583,7 +583,12 @@ const averageRR = totalTrades
     <span className="text-lg">✦</span>
     Conceptos
   </a>
-
+<button
+  onClick={logout}
+  className="w-full mt-6 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/20 transition"
+>
+  Cerrar sesión
+</button>
 </div>
     </main>
   );
