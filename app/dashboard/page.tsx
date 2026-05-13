@@ -273,7 +273,7 @@ const averageRR = totalTrades
           </button>
         </div>
 
-        <button onClick={logout} className="mt-auto text-[11px] text-red-400 hover:text-red-300 px-3 py-2 text-left transition">
+        <button onClick={logout} className=" md:hidden mt-auto text-[11px] text-red-400 hover:text-red-300 px-3 py-2 text-left transition">
           → Salir
         </button>
 
@@ -596,7 +596,7 @@ const averageRR = totalTrades
   </a>
  <button
   onClick={logout}
-  className="md:hidden flex flex-col items-center gap-1 text-[10px] text-red-400"
+  className="flex flex-col items-center gap-1 text-[10px] text-red-400"
 >
   <span className="text-lg">⎋</span>
   Salir
