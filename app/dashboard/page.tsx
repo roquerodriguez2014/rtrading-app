@@ -244,9 +244,9 @@ const averageRR = totalTrades
 
         <NavSection label="Main" />
 <NavItem active label="◈  Dashboard" />
-<NavItem label="＋  Nueva op." onClick={() => (window.location.href = "/trades/new")} />
-<NavItem label="≡  Historial" onClick={() => (window.location.href = "/trades/history")} />
 
+<NavItem label="≡  Historial" onClick={() => (window.location.href = "/trades/history")} />
+<NavItem label="＋  Nueva op." onClick={() => (window.location.href = "/trades/new")} />
 <NavSection label="Análisis" />
 <NavItem label="◎  Activos" onClick={() => (window.location.href = "/assets")} />
 <NavItem label="❋  Conceptos" onClick={() => (window.location.href = "/conceptos")} />
