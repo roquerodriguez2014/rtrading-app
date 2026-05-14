@@ -297,6 +297,13 @@ export default function NewTrade() {
                   className={inputClass}
                 />
               </div>
+              <div>
+  <label className={labelClass}>RR</label>
+
+  <div className="w-full px-3 py-2.5 bg-[#13161e] border border-violet-500/20 rounded-xl text-[13px] text-violet-300 font-semibold">
+    {calculateRR() ? `1:${calculateRR()}` : "--"}
+  </div>
+</div>
 
               <div>
                 <label className={labelClass}>Precio salida</label>
