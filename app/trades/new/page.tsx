@@ -194,8 +194,7 @@ export default function NewTrade() {
             <p className="text-[13px] font-semibold mb-4">
               Datos de la operación
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
+           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
               {/* ── ACTIVO CON AUTOCOMPLETE ── */}
               <div className="relative">
                 <label className={labelClass}>Activo</label>
