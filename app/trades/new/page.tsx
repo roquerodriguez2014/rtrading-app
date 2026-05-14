@@ -5,30 +5,31 @@ import { useRouter } from "next/navigation";
 
 export default function NewTrade() {
   const router = useRouter();
-  const assetSuggestions = [
-  "BTCUSDT",
-  "ETHUSDT",
-  "EURUSD",
-  "GBPUSD",
-  "XAUUSD",
-  "US30",
-  "NAS100",
-  "SPX500",
-];
 
-const filteredAssets = assetSuggestions.filter((item) =>
-  item.toLowerCase().includes(asset.toLowerCase())
-);
-
-  const [asset,   setAsset]   = useState("");
-  const [type,    setType]    = useState("compra");
-  const [entry,   setEntry]   = useState("");
-  const [exit,    setExit]    = useState("");
-  const [result,  setResult]  = useState("tp");
-  const [notes,   setNotes]   = useState("");
+  const [asset, setAsset] = useState("");
+  const [type, setType] = useState("compra");
+  const [entry, setEntry] = useState("");
+  const [exit, setExit] = useState("");
+  const [result, setResult] = useState("tp");
+  const [notes, setNotes] = useState("");
   const [emotion, setEmotion] = useState("");
   const [file, setFile] = useState<string | null>(null);
-const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const assetSuggestions = [
+    "BTCUSDT",
+    "ETHUSDT",
+    "EURUSD",
+    "GBPUSD",
+    "XAUUSD",
+    "US30",
+    "NAS100",
+    "SPX500",
+  ];
+
+  const filteredAssets = assetSuggestions.filter((item) =>
+    item.toLowerCase().includes(asset.toLowerCase())
+  );
   useEffect(() => {
   const editingTrade = localStorage.getItem("editingTrade");
 
