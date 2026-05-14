@@ -109,6 +109,8 @@ export default function NewTrade() {
       asset,
       type,
       entry: Number(entry),
+      stop_loss: Number(stopLoss),
+      take_profit: Number(takeProfit),
       exit: Number(exit),
       result,
       notes,
