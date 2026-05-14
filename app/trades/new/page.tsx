@@ -1,11 +1,9 @@
 "use client";
+
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function NewTrade() {
-  const router = useRouter();
-
   const [asset, setAsset] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [type, setType] = useState("compra");
@@ -42,12 +40,14 @@ export default function NewTrade() {
 
       setAsset(trade.asset || "");
       setType(trade.type || "compra");
-      setEntry(trade.entry || "");
-      setExit(trade.exit || "");
+      setEntry(trade.entry ? String(trade.entry) : "");
+      setStopLoss(trade.stop_loss ? String(trade.stop_loss) : "");
+      setTakeProfit(trade.take_profit ? String(trade.take_profit) : "");
+      setExit(trade.exit ? String(trade.exit) : "");
       setResult(trade.result || "tp");
       setNotes(trade.notes || "");
       setEmotion(trade.emotion || "");
-      setFile(trade.file || null);
+      setFile(trade.file_url || trade.file || null);
     }
   }, []);
 
@@ -80,11 +80,9 @@ export default function NewTrade() {
     }
 
     let fileUrl: string | null = null;
-    console.log("FILE ACTUAL:", file);
 
     if (selectedFile) {
       const fileExt = selectedFile.name.split(".").pop();
-
       const filePath = `${user.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
@@ -109,9 +107,9 @@ export default function NewTrade() {
       asset,
       type,
       entry: Number(entry),
-      stop_loss: Number(stopLoss),
-      take_profit: Number(takeProfit),
-      exit: Number(exit),
+      stop_loss: stopLoss ? Number(stopLoss) : null,
+      take_profit: takeProfit ? Number(takeProfit) : null,
+      exit: exit ? Number(exit) : null,
       result,
       notes,
       emotion,
@@ -156,14 +154,16 @@ export default function NewTrade() {
       <div className="flex items-center justify-between px-6 py-4 bg-[#13161e] border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => (window.location.href = "/dashboard")}
-            className="hidden xl:flex flex items-center gap-1.5 text-gray-500 hover:text-white text-[13px] transition"
+            className="hidden xl:flex items-center gap-1.5 text-gray-500 hover:text-white text-[13px] transition"
           >
             ← Volver
           </button>
           <span className="text-white/10">|</span>
-          <span className="text-[14px] font-semibold">Nueva operación </span>
+          <span className="text-[14px] font-semibold">Nueva operación</span>
         </div>
+
         <div className="flex items-center gap-2">
           <a
             href="/dashboard"
@@ -172,16 +172,13 @@ export default function NewTrade() {
             Cancelar
           </a>
 
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              saveTrade();
-            }}
+          <button
+            type="button"
+            onClick={saveTrade}
             className="px-5 py-1.5 rounded-lg text-[13px] font-semibold text-white bg-violet-600 hover:bg-violet-500 shadow-[0_0_16px_rgba(124,92,252,0.3)] transition"
           >
             Guardar operación
-          </a>
+          </button>
         </div>
       </div>
 
@@ -189,14 +186,14 @@ export default function NewTrade() {
       <div className="flex-1 p-4 md:p-6 flex flex-col xl:flex-row gap-5 max-w-[1100px] mx-auto w-full">
         {/* LEFT — FORMULARIO */}
         <div className="flex-1 flex flex-col gap-4">
-          {/* Instrumento + Tipo */}
+          {/* Datos principales */}
           <div className="bg-[#13161e] border border-white/[0.06] rounded-2xl p-5">
             <p className="text-[13px] font-semibold mb-4">
               Datos de la operación
             </p>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mt-3"></div>
-              {/* ── ACTIVO CON AUTOCOMPLETE ── */}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* ACTIVO CON AUTOCOMPLETE */}
               <div className="relative">
                 <label className={labelClass}>Activo</label>
 
@@ -210,8 +207,6 @@ export default function NewTrade() {
                   onFocus={() => {
                     if (asset) setShowSuggestions(true);
                   }}
-                  // El timeout le da tiempo al click de la sugerencia a dispararse
-                  // antes de que el blur cierre el dropdown
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                   className={inputClass}
                   autoComplete="off"
@@ -223,7 +218,6 @@ export default function NewTrade() {
                       <button
                         key={item}
                         type="button"
-                        // onMouseDown en lugar de onClick para que dispare ANTES del onBlur
                         onMouseDown={() => {
                           setAsset(item);
                           setShowSuggestions(false);
@@ -236,7 +230,6 @@ export default function NewTrade() {
                   </div>
                 )}
               </div>
-              {/* ── FIN ACTIVO ── */}
 
               <div>
                 <label className={labelClass}>Tipo</label>
@@ -249,46 +242,48 @@ export default function NewTrade() {
                   <option value="venta">Venta</option>
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 mt-3">
+              <div>
+                <label className={labelClass}>Precio entrada</label>
+                <input
+                  placeholder="0.00"
+                  value={entry}
+                  onChange={(e) => setEntry(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
 
               <div>
-  <label className={labelClass}>Precio entrada</label>
-  <input
-    placeholder="0.00"
-    value={entry}
-    onChange={(e) => setEntry(e.target.value)}
-    className={inputClass}
-  />
-</div>
+                <label className={labelClass}>Stop Loss</label>
+                <input
+                  placeholder="0.00"
+                  value={stopLoss}
+                  onChange={(e) => setStopLoss(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
 
-<div>
-  <label className={labelClass}>Stop Loss</label>
-  <input
-    placeholder="0.00"
-    value={stopLoss}
-    onChange={(e) => setStopLoss(e.target.value)}
-    className={inputClass}
-  />
-</div>
+              <div>
+                <label className={labelClass}>Take Profit</label>
+                <input
+                  placeholder="0.00"
+                  value={takeProfit}
+                  onChange={(e) => setTakeProfit(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
 
-<div>
-  <label className={labelClass}>Take Profit</label>
-  <input
-    placeholder="0.00"
-    value={takeProfit}
-    onChange={(e) => setTakeProfit(e.target.value)}
-    className={inputClass}
-  />
-</div>
-
-<div>
-  <label className={labelClass}>Precio salida</label>
-  <input
-    placeholder="0.00"
-    value={exit}
-    onChange={(e) => setExit(e.target.value)}
-    className={inputClass}
-  />
-</div>
+              <div>
+                <label className={labelClass}>Precio salida</label>
+                <input
+                  placeholder="0.00"
+                  value={exit}
+                  onChange={(e) => setExit(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
             </div>
           </div>
 
@@ -299,6 +294,7 @@ export default function NewTrade() {
               {(["tp", "sl", "be"] as const).map((r) => (
                 <button
                   key={r}
+                  type="button"
                   onClick={() => setResult(r)}
                   className={`flex-1 py-2.5 rounded-xl text-[13px] font-semibold border transition ${
                     result === r
@@ -330,6 +326,7 @@ export default function NewTrade() {
                   className={`${inputClass} resize-none`}
                 />
               </div>
+
               <div>
                 <label className={labelClass}>
                   Estado emocional / psicología
@@ -385,6 +382,7 @@ export default function NewTrade() {
                   </div>
                 </div>
               )}
+
               <input
                 type="file"
                 accept="image/*,video/*"
@@ -395,7 +393,11 @@ export default function NewTrade() {
 
             {file && (
               <button
-                onClick={() => setFile(null)}
+                type="button"
+                onClick={() => {
+                  setFile(null);
+                  setSelectedFile(null);
+                }}
                 className="mt-3 w-full py-2 rounded-xl text-[12px] text-gray-500 hover:text-red-400 bg-[#1a1d27] border border-white/[0.06] transition"
               >
                 Eliminar imagen
