@@ -130,7 +130,30 @@ export default function NewTrade() {
   const inputClass =
     "w-full px-3 py-2.5 bg-[#1a1d27] border border-white/[0.06] rounded-xl text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-violet-500/50 transition";
   const labelClass =
+    
     "text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block";
+    const calculateRR = () => {
+  const entryNum = Number(entry);
+  const slNum = Number(stopLoss);
+  const tpNum = Number(takeProfit);
+
+  if (!entryNum || !slNum || !tpNum) return null;
+
+  let risk = 0;
+  let reward = 0;
+
+  if (type === "compra") {
+    risk = entryNum - slNum;
+    reward = tpNum - entryNum;
+  } else {
+    risk = slNum - entryNum;
+    reward = entryNum - tpNum;
+  }
+
+  if (risk <= 0 || reward <= 0) return null;
+
+  return (reward / risk).toFixed(2);
+};
 
   return (
     <main className="min-h-screen bg-[#0e1015] text-[#f0f2f8] flex flex-col">
