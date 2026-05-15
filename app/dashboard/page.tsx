@@ -207,17 +207,29 @@ const breakeven = savedTrades.filter(
 const winRate = totalTrades
   ? Math.round((wins / totalTrades) * 100)
   : 0;
-const averageRR = totalTrades
+  const averageRR = totalTrades
   ? (
       savedTrades.reduce((acc, trade) => {
         const entry = Number(trade.entry || 0);
-        const exit = Number(trade.exit || 0);
+        const stop = Number(trade.stop_loss || 0);
+        const take = Number(trade.take_profit || 0);
 
-        if (!entry || !exit) return acc;
+        if (!entry || !stop || !take) return acc;
 
-        const rr = Math.abs(exit - entry) / entry;
+        let risk = 0;
+        let reward = 0;
 
-        return acc + rr;
+        if (trade.type === "compra") {
+          risk = entry - stop;
+          reward = take - entry;
+        } else {
+          risk = stop - entry;
+          reward = entry - take;
+        }
+
+        if (risk <= 0 || reward <= 0) return acc;
+
+        return acc + reward / risk;
       }, 0) / totalTrades
     ).toFixed(2)
   : "0";
