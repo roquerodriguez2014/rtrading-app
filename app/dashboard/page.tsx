@@ -190,7 +190,10 @@ const assetLossPct = assetTotal
 const assetBePct = assetTotal
   ? Math.round((assetBreakeven / assetTotal) * 100)
   : 0;
-  const totalTrades = savedTrades.length;
+ const initialCapital = 10000;
+const riskPerTrade = 100;
+
+const totalTrades = savedTrades.length;
 
 const wins = savedTrades.filter(
   (t) => t.result === "tp"
@@ -207,32 +210,82 @@ const breakeven = savedTrades.filter(
 const winRate = totalTrades
   ? Math.round((wins / totalTrades) * 100)
   : 0;
-  const averageRR = totalTrades
+
+const getTradeRR = (trade: any) => {
+  const entry = Number(trade.entry || 0);
+  const stop = Number(trade.stop_loss || 0);
+  const take = Number(trade.take_profit || 0);
+
+  if (!entry || !stop || !take) return 0;
+
+  let risk = 0;
+  let reward = 0;
+
+  if (trade.type === "compra") {
+    risk = entry - stop;
+    reward = take - entry;
+  } else {
+    risk = stop - entry;
+    reward = entry - take;
+  }
+
+  if (risk <= 0 || reward <= 0) return 0;
+
+  return reward / risk;
+};
+
+const rrValues = savedTrades
+  .map(getTradeRR)
+  .filter((rr) => rr > 0);
+
+const averageRR = rrValues.length
   ? (
-      savedTrades.reduce((acc, trade) => {
-        const entry = Number(trade.entry || 0);
-        const stop = Number(trade.stop_loss || 0);
-        const take = Number(trade.take_profit || 0);
-
-        if (!entry || !stop || !take) return acc;
-
-        let risk = 0;
-        let reward = 0;
-
-        if (trade.type === "compra") {
-          risk = entry - stop;
-          reward = take - entry;
-        } else {
-          risk = stop - entry;
-          reward = entry - take;
-        }
-
-        if (risk <= 0 || reward <= 0) return acc;
-
-        return acc + reward / risk;
-      }, 0) / totalTrades
+      rrValues.reduce((sum, rr) => sum + rr, 0) /
+      rrValues.length
     ).toFixed(2)
-  : "0";
+  : "0.00";
+
+const tradePnLs = savedTrades.map((trade) => {
+  const rr = getTradeRR(trade);
+
+  if (trade.result === "tp") return riskPerTrade * rr;
+
+  if (trade.result === "sl") return -riskPerTrade;
+
+  return 0;
+});
+
+const totalProfit = tradePnLs.reduce(
+  (sum, pnl) => sum + pnl,
+  0
+);
+
+const currentCapital =
+  initialCapital + totalProfit;
+
+const grossProfit = tradePnLs
+  .filter((pnl) => pnl > 0)
+  .reduce((sum, pnl) => sum + pnl, 0);
+
+const grossLoss = Math.abs(
+  tradePnLs
+    .filter((pnl) => pnl < 0)
+    .reduce((sum, pnl) => sum + pnl, 0)
+);
+
+const profitFactor =
+  grossLoss > 0
+    ? (grossProfit / grossLoss).toFixed(2)
+    : grossProfit > 0
+    ? "∞"
+    : "0.00";
+
+const profitPercent = initialCapital
+  ? (
+      (totalProfit / initialCapital) *
+      100
+    ).toFixed(2)
+  : "0.00";
   return (
     <main className="min-h-screen bg-[#0e1015] text-[#f0f2f8] flex flex-col xl:flex-row font-sans overflow-hidden">
 
@@ -248,7 +301,7 @@ const winRate = totalTrades
             RT
           </div>
           <span className="text-[15px] font-bold tracking-tight">RTrading</span>
-          
+          tr
         </div>
 
         <NavSection label="Main" />
@@ -395,29 +448,31 @@ const winRate = totalTrades
               icon="📈"
             />
             <MetricCard
-              title="Profit factor"
-              value="2.24"
-              sub="+$1,203 este mes"
-              badge="+8.1%"
-              up
-              icon="💰"
-            />
-            <MetricCard
-              title="RR ratio"
-              value={`1 : ${averageRR}`}
-              sub="Promedio según entrada/salida"
-              badge="−5.2%"
-              up={false}
-              icon="⚖"
-            />
-            <MetricCard
-              title="Hit rate"
-              value={`${winRate}%`}
-              sub={`${totalTrades} trades totales`}
-              badge="+25.4%"
-              up
-              icon="🎯"
-            />
+  title="Profit factor"
+  value={profitFactor}
+  sub={`Capital inicial: $${initialCapital} · Actual: $${currentCapital.toFixed(2)} · ${totalProfit >= 0 ? "+" : ""}$${totalProfit.toFixed(2)} (${profitPercent}%)`}
+  badge="+8.1%"
+  up
+  icon="💰"
+/>
+
+<MetricCard
+  title="RR ratio"
+  value={`1 : ${averageRR}`}
+  sub="Promedio según entrada/salida"
+  badge="−5.2%"
+  up={false}
+  icon="⚖"
+/>
+
+<MetricCard
+  title="Hit rate"
+  value={`${winRate}%`}
+  sub={`${totalTrades} trades totales`}
+  badge="+25.4%"
+  up
+  icon="🎯"
+/>
           </div>
 
           {/* ── MID ROW ── */}
