@@ -16,7 +16,7 @@ export default function NewTrade() {
   const [emotion, setEmotion] = useState("");
   const [file, setFile] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
+const [pnl, setPnl] = useState("");
   const assetSuggestions = [
     "BTCUSDT",
     "ETHUSDT",
@@ -117,6 +117,7 @@ export default function NewTrade() {
       trade_date: new Date().toISOString().slice(0, 10),
       trade_time: new Date().toTimeString().slice(0, 8),
       session_name: "Sin definir",
+      pnl: pnl ? Number(pnl) : 0,
     });
 
     if (error) {
@@ -299,10 +300,23 @@ export default function NewTrade() {
               </div>
               <div>
   <label className={labelClass}>RR</label>
-
   <div className="w-full px-3 py-2.5 bg-[#13161e] border border-violet-500/20 rounded-xl text-[13px] text-violet-300 font-semibold">
     {calculateRR() ? `1:${calculateRR()}` : "--"}
   </div>
+  
+</div>
+<div>
+  <label className={labelClass}>
+    Resultado $ / PnL
+  </label>
+
+  <input
+    type="number"
+    value={pnl}
+    onChange={(e) => setPnl(e.target.value)}
+    className={inputClass}
+    placeholder="0.00"
+  />
 </div>
 
               <div>
