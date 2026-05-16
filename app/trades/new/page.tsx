@@ -16,7 +16,8 @@ export default function NewTrade() {
   const [emotion, setEmotion] = useState("");
   const [file, setFile] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-const [pnl, setPnl] = useState("");
+  const [pnl, setPnl] = useState("");
+
   const assetSuggestions = [
     "BTCUSDT",
     "ETHUSDT",
@@ -32,24 +33,25 @@ const [pnl, setPnl] = useState("");
     item.toLowerCase().includes(asset.toLowerCase())
   );
 
-  useEffect(() => {
-    const editingTrade = localStorage.getItem("editingTrade");
+ useEffect(() => {
+  const editingTrade = localStorage.getItem("editingTrade");
 
-    if (editingTrade) {
-      const trade = JSON.parse(editingTrade);
+  if (editingTrade) {
+    const trade = JSON.parse(editingTrade);
 
-      setAsset(trade.asset || "");
-      setType(trade.type || "compra");
-      setEntry(trade.entry ? String(trade.entry) : "");
-      setStopLoss(trade.stop_loss ? String(trade.stop_loss) : "");
-      setTakeProfit(trade.take_profit ? String(trade.take_profit) : "");
-      setExit(trade.exit ? String(trade.exit) : "");
-      setResult(trade.result || "tp");
-      setNotes(trade.notes || "");
-      setEmotion(trade.emotion || "");
-      setFile(trade.file_url || trade.file || null);
-    }
-  }, []);
+    setAsset(trade.asset || "");
+    setType(trade.type || "compra");
+    setEntry(trade.entry ? String(trade.entry) : "");
+    setStopLoss(trade.stop_loss ? String(trade.stop_loss) : "");
+    setTakeProfit(trade.take_profit ? String(trade.take_profit) : "");
+    setExit(trade.exit ? String(trade.exit) : "");
+    setResult(trade.result || "tp");
+    setNotes(trade.notes || "");
+    setEmotion(trade.emotion || "");
+    setFile(trade.file_url || trade.file || null);
+    setPnl(trade.pnl ? String(trade.pnl) : "");
+  }
+}, []);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
@@ -68,94 +70,120 @@ const [pnl, setPnl] = useState("");
   }
 
   async function saveTrade() {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      alert("Tenés que iniciar sesión.");
-      window.location.href = "/";
+  if (userError || !user) {
+    alert("Tenés que iniciar sesión.");
+    window.location.href = "/";
+    return;
+  }
+
+  const editingTrade = localStorage.getItem("editingTrade");
+  const tradeToEdit = editingTrade ? JSON.parse(editingTrade) : null;
+  let fileUrl: string | null = file;
+
+  if (selectedFile) {
+    const fileExt = selectedFile.name.split(".").pop();
+    const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("trade-files")
+      .upload(filePath, selectedFile);
+
+    if (uploadError) {
+      console.error("UPLOAD ERROR:", uploadError);
+      alert("Error subiendo imagen: " + uploadError.message);
       return;
     }
 
-    let fileUrl: string | null = null;
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("trade-files").getPublicUrl(filePath);
 
-    if (selectedFile) {
-      const fileExt = selectedFile.name.split(".").pop();
-      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+    fileUrl = publicUrl;
+  }
 
-      const { error: uploadError } = await supabase.storage
-        .from("trade-files")
-        .upload(filePath, selectedFile);
+  const tradeData = {
+    user_id: user.id,
+    asset,
+    type,
+    entry: Number(entry),
+    stop_loss: stopLoss ? Number(stopLoss) : null,
+    take_profit: takeProfit ? Number(takeProfit) : null,
+    exit: exit ? Number(exit) : null,
+    result,
+    notes,
+    emotion,
+    file_url: fileUrl,
+    pnl: pnl ? Number(pnl) : 0,
+  };
 
-      if (uploadError) {
-        console.error("UPLOAD ERROR:", uploadError);
-        alert("Error subiendo imagen: " + uploadError.message);
-        return;
-      }
+  let error;
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("trade-files").getPublicUrl(filePath);
+ if (tradeToEdit?.id) {
+  const { data, error: updateError } = await supabase
+    .from("trades")
+    .update(tradeData)
+    .eq("id", tradeToEdit.id)
+    .eq("user_id", user.id)
+    .select();
 
-      fileUrl = publicUrl;
-    }
-
-    const { error } = await supabase.from("trades").insert({
-      user_id: user.id,
-      asset,
-      type,
-      entry: Number(entry),
-      stop_loss: stopLoss ? Number(stopLoss) : null,
-      take_profit: takeProfit ? Number(takeProfit) : null,
-      exit: exit ? Number(exit) : null,
-      result,
-      notes,
-      emotion,
-      file_url: fileUrl,
+  error = updateError;
+}
+  else {
+    const response = await supabase.from("trades").insert({
+      ...tradeData,
       trade_date: new Date().toISOString().slice(0, 10),
       trade_time: new Date().toTimeString().slice(0, 8),
       session_name: "Sin definir",
-      pnl: pnl ? Number(pnl) : 0,
     });
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    window.location.href = "/dashboard";
+    error = response.error;
   }
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+
+
+localStorage.removeItem("editingTrade");
+
+ window.location.href = "/dashboard";
+}
 
   const inputClass =
     "w-full px-3 py-2.5 bg-[#1a1d27] border border-white/[0.06] rounded-xl text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-violet-500/50 transition";
+
   const labelClass =
-    
     "text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block";
-    const calculateRR = () => {
-  const entryNum = Number(entry);
-  const slNum = Number(stopLoss);
-  const tpNum = Number(takeProfit);
 
-  if (!entryNum || !slNum || !tpNum) return null;
+  const calculateRR = () => {
+    const entryNum = Number(entry);
+    const slNum = Number(stopLoss);
+    const tpNum = Number(takeProfit);
 
-  let risk = 0;
-  let reward = 0;
+    if (!entryNum || !slNum || !tpNum) return null;
 
-  if (type === "compra") {
-    risk = entryNum - slNum;
-    reward = tpNum - entryNum;
-  } else {
-    risk = slNum - entryNum;
-    reward = entryNum - tpNum;
-  }
+    let risk = 0;
+    let reward = 0;
 
-  if (risk <= 0 || reward <= 0) return null;
+    if (type === "compra") {
+      risk = entryNum - slNum;
+      reward = tpNum - entryNum;
+    } else {
+      risk = slNum - entryNum;
+      reward = entryNum - tpNum;
+    }
 
-  return (reward / risk).toFixed(2);
-};
+    if (risk <= 0 || reward <= 0) return null;
 
+    return (reward / risk).toFixed(2);
+  };
   return (
     <main className="min-h-screen bg-[#0e1015] text-[#f0f2f8] flex flex-col">
       <div className="xl:hidden flex items-center justify-between px-4 py-4 bg-[#13161e] border-b border-white/[0.06] sticky top-0 z-50">
