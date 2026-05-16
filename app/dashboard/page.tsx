@@ -54,6 +54,7 @@ const CANDLES: [number, number][] = [
 ];
 
 export default function Dashboard() {
+  const [username, setUsername] = useState("");
   const [user, setUser] = useState("");
   const [avatar, setAvatar] = useState<string | null>(null);
   const [savedTrades, setSavedTrades] = useState<TradeRow[]>([]);
@@ -77,13 +78,16 @@ export default function Dashboard() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("avatar_url, initial_capital")
+        .select("avatar_url, initial_capital, username")
         .eq("id", session.user.id)
         .single();
 
       if (profile?.avatar_url) {
         setAvatar(profile.avatar_url);
-      }
+        }
+        if (profile?.username) {
+        setUsername(profile.username);
+        }
 
       if (
         profile?.initial_capital !== null &&
@@ -165,7 +169,20 @@ export default function Dashboard() {
       .update({ initial_capital: value })
       .eq("id", user.id);
   }
+      async function saveUsername(value: string) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (!user) return;
+
+  await supabase
+    .from("profiles")
+    .update({
+      username: value,
+    })
+    .eq("id", user.id);
+}
   const recentTrades = [...savedTrades].slice(0, 4);
 
   const assetTrades =
@@ -339,12 +356,26 @@ const capitalBadge =
           </div>
         </div>
 
-        <AvatarPicker avatar={avatar} handleAvatar={handleAvatar} size="sm" />
+        <div className="flex items-center gap-3">
+  <AvatarPicker avatar={avatar} handleAvatar={handleAvatar} size="sm" />
+
+  <input
+    type="text"
+    value={username}
+    onChange={async (e) => {
+      setUsername(e.target.value);
+      await saveUsername(e.target.value);
+    }}
+    placeholder="Usuario"
+    className="w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white text-left outline-none focus:border-violet-400"
+  />
+</div>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden pb-24 xl:pb-0">
         <div className="flex items-center justify-between px-6 py-4 bg-[#13161e] border-b border-white/[0.06]">
           <div className="flex flex-wrap items-center gap-2 w-full justify-end">
+            
             <div className="flex items-center gap-1.5 bg-[#1a1d27] border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-gray-400">
               📅{" "}
               {new Date().toLocaleDateString("es-AR", {
@@ -364,6 +395,16 @@ const capitalBadge =
             >
               ＋ Nueva operación
             </button>
+            <input
+  type="text"
+  value={username}
+  onChange={async (e) => {
+    setUsername(e.target.value);
+    await saveUsername(e.target.value);
+  }}
+  placeholder="Usuario"
+  className="w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white outline-none focus:border-violet-400"
+/>
 
             <div className="hidden xl:block">
               <AvatarPicker
@@ -390,6 +431,7 @@ const capitalBadge =
             <input
               type="number"
               value={initialCapital}
+              onFocus={(e) => e.target.select()}
               onChange={(e) => {
                 const value = Number(e.target.value);
                 setInitialCapital(value);
@@ -707,7 +749,7 @@ function AvatarPicker({
           👤
         </div>
       )}
-
+        
       <input
         type="file"
         accept="image/*"
