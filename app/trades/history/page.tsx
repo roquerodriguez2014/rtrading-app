@@ -30,7 +30,7 @@ export default function TradeHistoryPage() {
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-
+  const [openImage, setOpenImage] = useState<string | null>(null);
   useEffect(() => {
     async function loadTrades() {
       const {
@@ -169,16 +169,21 @@ export default function TradeHistoryPage() {
                   <TextBlock title="Psicología" text={trade.emotion} />
                 </div>
               </div>
-
-              {trade.file_url && (
-                <div className="w-[220px] shrink-0">
-                  <img
-                    src={trade.file_url}
-                    alt="Captura del trade"
-                    className="w-full rounded-xl border border-white/[0.06] object-cover"
-                  />
-                </div>
-              )}
+{trade.file_url && (
+  <div className="w-[220px] shrink-0">
+    <img
+      src={trade.file_url}
+      alt="Captura del trade"
+      onClick={(e) => {
+        e.stopPropagation();
+        if (trade.file_url) {
+          setOpenImage(trade.file_url);
+        }
+      }}
+      className="w-full rounded-xl border border-white/[0.06] object-cover cursor-pointer hover:scale-[1.02] transition"
+    />
+  </div>
+)}
             </div>
           </div>
         ))}
@@ -263,6 +268,20 @@ export default function TradeHistoryPage() {
                     <p>
                       <strong>Salida:</strong> {selectedTrade.exit || "—"}
                     </p>
+                    <div>
+  <p className="text-xs text-slate-400">PnL</p>
+
+  <p
+    className={`text-sm font-semibold ${
+      Number(selectedTrade.pnl || 0) >= 0
+        ? "text-emerald-400"
+        : "text-red-400"
+    }`}
+  >
+    {Number(selectedTrade.pnl || 0) >= 0 ? "+" : ""}
+    ${Number(selectedTrade.pnl || 0).toFixed(2)}
+  </p>
+</div>
                     <p>
                       <strong>Fecha:</strong>{" "}
                       {selectedTrade.created_at
@@ -303,6 +322,28 @@ export default function TradeHistoryPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+          {openImage && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4"
+          onClick={() => setOpenImage(null)}
+        >
+          <div className="relative max-w-6xl w-full">
+            <button
+              type="button"
+              onClick={() => setOpenImage(null)}
+              className="absolute top-3 right-3 text-white text-3xl z-50"
+            >
+              ✕
+            </button>
+
+            <img
+              src={openImage}
+              alt="Zoom"
+              className="w-full max-h-[90vh] object-contain rounded-2xl"
+            />
           </div>
         </div>
       )}

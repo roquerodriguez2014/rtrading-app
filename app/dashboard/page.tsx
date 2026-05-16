@@ -359,16 +359,7 @@ const capitalBadge =
         <div className="flex items-center gap-3">
   <AvatarPicker avatar={avatar} handleAvatar={handleAvatar} size="sm" />
 
-  <input
-    type="text"
-    value={username}
-    onChange={async (e) => {
-      setUsername(e.target.value);
-      await saveUsername(e.target.value);
-    }}
-    placeholder="Usuario"
-    className="w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white text-left outline-none focus:border-violet-400"
-  />
+  
 </div>
       </div>
 
