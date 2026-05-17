@@ -386,7 +386,7 @@ const capitalBadge =
             >
               ＋ Nueva operación
             </button>
-            <input
+           hidden md:block <input
   type="text"
   value={username}
   onChange={async (e) => {
