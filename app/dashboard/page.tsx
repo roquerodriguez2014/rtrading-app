@@ -52,7 +52,23 @@ const CANDLES: [number, number][] = [
   [100, 1],
   [72, 0],
 ];
+const WEEK_DAYS = ["L", "M", "X", "J", "V", "S", "D"];
 
+function getDayColor(value: number, tradesCount: number) {
+  if (tradesCount === 0) {
+    return "bg-[#1a1d27] border-white/[0.06] text-gray-500";
+  }
+
+  if (value > 0) {
+    return "bg-emerald-500/20 border-emerald-400 text-emerald-300";
+  }
+
+  if (value < 0) {
+    return "bg-red-500/20 border-red-400 text-red-300";
+  }
+
+  return "bg-violet-500/20 border-violet-400 text-violet-300";
+}
 export default function Dashboard() {
   const [username, setUsername] = useState("");
   const [user, setUser] = useState("");
@@ -60,6 +76,8 @@ export default function Dashboard() {
   const [savedTrades, setSavedTrades] = useState<TradeRow[]>([]);
   const [selectedAsset, setSelectedAsset] = useState("GENERAL");
   const [initialCapital, setInitialCapital] = useState(10000);
+  const [weekOffset, setWeekOffset] = useState(0);
+const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
 
 
@@ -281,6 +299,47 @@ const capitalBadge =
   totalProfit >= 0
     ? `+${profitPercent}%`
     : `${profitPercent}%`;
+    const today = new Date();
+
+const currentWeekStart = new Date(today);
+
+currentWeekStart.setDate(
+  today.getDate() - today.getDay() + 1 - weekOffset * 7,
+);
+
+const weekDaysData = Array.from({ length: 7 }).map((_, index) => {
+  const date = new Date(currentWeekStart);
+
+  date.setDate(currentWeekStart.getDate() + index);
+
+  const formatted = date.toISOString().slice(0, 10);
+
+  const dayTrades = savedTrades.filter((trade: any) => {
+    const tradeDate = trade.trade_date || trade.created_at?.slice(0, 10);
+
+    return tradeDate === formatted;
+  });
+  const pnl = dayTrades.reduce((acc: number, trade: any) => {
+    return acc + Number(trade.pnl || 0);
+  }, 0);
+
+  return {
+    label: WEEK_DAYS[index],
+    date: formatted,
+    pnl,
+    trades: dayTrades,
+  };
+});
+
+const selectedDayData = weekDaysData.find(
+  (day) => day.date === selectedDay,
+);
+
+const weekTradesCount = weekDaysData.reduce(
+  (acc, day) => acc + day.trades.length,
+  0,
+);
+    
   return (
     <main className="min-h-screen bg-[#0e1015] text-[#f0f2f8] flex flex-col xl:flex-row font-sans overflow-hidden">
       <aside className="hidden xl:flex w-[220px] min-w-[220px] bg-[#13161e] border-r border-white/[0.06] flex-col py-5 px-3.5 gap-1">
@@ -638,42 +697,128 @@ const capitalBadge =
                 </table>
               </div>
             </div>
+<div className="bg-[#13161e] border border-white/[0.06] rounded-lg p-5 flex flex-col gap-5">
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="text-sm font-semibold tracking-wide">
+        TRADING WEEK
+      </p>
 
-            <div className="bg-[#13161e] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-4">
-              <div>
-                <p className="text-sm font-semibold">Sesión por mercado</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">
-                  Rendimiento por sesión
-                </p>
-              </div>
+      <p className="text-[11px] text-gray-500 mt-0.5 uppercase tracking-wider">
+        rendimiento semanal
+      </p>
+    </div>
 
-              <div className="flex flex-col gap-3">
-                {SESSIONS.map((s) => (
-                  <div key={s.name}>
-                    <div className="flex justify-between text-[12.5px] mb-1.5">
-                      <span>
-                        <span className="mr-1.5">{s.flag}</span>
-                        {s.name}
-                      </span>
-                      <strong>{s.pct}%</strong>
-                    </div>
-                    <div className="h-[5px] bg-[#1a1d27] rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400"
-                        style={{ width: `${s.pct}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => setWeekOffset((prev) => prev + 1)}
+        className="w-8 h-8 rounded-md bg-[#1a1d27] border border-white/[0.06] text-gray-400 hover:bg-[#202431] transition"
+      >
+        ←
+      </button>
 
-              <div className="mt-auto">
-                <p className="text-[11px] text-gray-500 mb-2">
-                  BTCUSD · Últimas velas
-                </p>
-                <MiniCandles />
-              </div>
+      <button
+        onClick={() => setWeekOffset((prev) => Math.max(prev - 1, 0))}
+        className="w-8 h-8 rounded-md bg-[#1a1d27] border border-white/[0.06] text-gray-400 hover:bg-[#202431] transition"
+      >
+        →
+      </button>
+    </div>
+  </div>
+
+  <div className="grid grid-cols-7 gap-[5px] w-full">
+    {weekDaysData.map((day) => (
+      <div
+        key={day.date}
+        onClick={() => setSelectedDay(day.date)}
+        className={`
+          h-[120px]
+          rounded-md
+          border
+          flex
+          flex-col
+          items-center
+          justify-center
+          transition-all
+          cursor-pointer
+          hover:opacity-90
+          ${getDayColor(day.pnl, day.trades.length)}
+        `}
+      >
+        <span className="text-[10px] uppercase tracking-[2px] opacity-60">
+          {day.label}
+        </span>
+
+        <strong className="text-[16px] mt-3 font-bold">
+          {day.pnl > 0 && "+"}
+          {day.pnl.toFixed(0)}
+        </strong>
+
+        <span className="text-[10px] mt-3 opacity-40">
+          {day.trades.length} trades
+        </span>
+      </div>
+    ))}
+  </div>
+
+  <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-gray-500">
+    <span>
+      {weekOffset === 0
+        ? "Semana actual"
+        : `${weekOffset} semana/s atrás`}
+    </span>
+
+    <span>{weekTradesCount} trades</span>
+  </div>
+
+  {selectedDay && (
+    <div className="rounded-md border border-white/[0.06] bg-[#10131a] p-3">
+      <p className="text-xs font-semibold mb-3">
+        Trades del {selectedDay}
+      </p>
+
+      {!selectedDayData || selectedDayData.trades.length === 0 ? (
+        <p className="text-xs text-gray-500">
+          Día sin trades
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {selectedDayData.trades.map((trade: any, index: number) => (
+            <div
+              key={trade.id || index}
+              className="flex items-center justify-between rounded-md border border-white/[0.06] bg-[#151922] px-3 py-2"
+            >
+              <span className="text-xs text-gray-300">
+                {trade.asset || "Sin activo"}
+              </span>
+
+              <strong
+                className={
+                  Number(trade.pnl || 0) >= 0
+                    ? "text-xs text-emerald-400"
+                    : "text-xs text-red-400"
+                }
+              >
+                {Number(trade.pnl || 0) > 0 && "+"}
+                {Number(trade.pnl || 0)}
+              </strong>
             </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
+
+  <div className="mt-2">
+    <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">
+      rendimiento reciente
+    </p>
+
+    <MiniCandles />
+  </div>
+</div>
+    <MiniCandles />
+   
           </div>
         </div>
       </div>
