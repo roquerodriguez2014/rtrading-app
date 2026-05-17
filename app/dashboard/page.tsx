@@ -809,16 +809,9 @@ const weekTradesCount = weekDaysData.reduce(
     </div>
   )}
 
-  <div className="mt-2">
-    <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">
-      rendimiento reciente
-    </p>
-
-    <MiniCandles />
-  </div>
+ 
 </div>
-    <MiniCandles />
-   
+
           </div>
         </div>
       </div>
