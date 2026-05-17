@@ -357,9 +357,33 @@ const capitalBadge =
         </div>
 
         <div className="flex items-center gap-3">
-  <AvatarPicker avatar={avatar} handleAvatar={handleAvatar} size="sm" />
+<input
+  type="text"
+  value={username}
+  onChange={async (e) => {
+    setUsername(e.target.value);
+    await saveUsername(e.target.value);
+  }}
+  placeholder="Usuario"
+  className="
+    w-[170px]
+    sm:w-[220px]
+    px-4 py-3
+    bg-[#0e1015]
+    border border-violet-500/40
+    rounded-2xl
+    text-sm
+    text-white
+    outline-none
+    focus:border-violet-400
+  "
+/>
 
-  
+<AvatarPicker
+  avatar={avatar}
+  handleAvatar={handleAvatar}
+  size="sm"
+/>
 </div>
       </div>
 
@@ -386,7 +410,7 @@ const capitalBadge =
             >
               ＋ Nueva operación
             </button>
-           <input
+            <input
   type="text"
   value={username}
   onChange={async (e) => {
@@ -394,7 +418,7 @@ const capitalBadge =
     await saveUsername(e.target.value);
   }}
   placeholder="Usuario"
-  className="hidden md:block w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white outline-none focus:border-violet-400"
+  className=" hidden md:block w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white outline-none focus:border-violet-400"
 />
 
             <div className="hidden xl:block">
