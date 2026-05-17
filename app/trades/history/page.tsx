@@ -170,7 +170,7 @@ export default function TradeHistoryPage() {
                 </div>
               </div>
 {trade.file_url && (
-  <div className="w-[220px] shrink-0">
+  <div className="overflow-hidden max-w-full">
     <img
       src={trade.file_url}
       alt="Captura del trade"
