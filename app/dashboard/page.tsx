@@ -386,7 +386,7 @@ const capitalBadge =
             >
               ＋ Nueva operación
             </button>
-           hidden md:block <input
+           <input
   type="text"
   value={username}
   onChange={async (e) => {
@@ -394,7 +394,7 @@ const capitalBadge =
     await saveUsername(e.target.value);
   }}
   placeholder="Usuario"
-  className="w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white outline-none focus:border-violet-400"
+  className="hidden md:block w-40 px-3 py-2 bg-[#0e1015] border border-violet-500/40 rounded-xl text-sm text-white outline-none focus:border-violet-400"
 />
 
             <div className="hidden xl:block">
