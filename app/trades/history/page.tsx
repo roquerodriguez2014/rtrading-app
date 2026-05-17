@@ -180,7 +180,16 @@ export default function TradeHistoryPage() {
           setOpenImage(trade.file_url);
         }
       }}
-      className="w-full rounded-xl border border-white/[0.06] object-cover cursor-pointer hover:scale-[1.02] transition"
+      className="
+  w-full
+  max-h-40
+  rounded-xl
+  border border-white/[0.06]
+  object-cover
+  cursor-pointer
+  hover:scale-[1.02]
+  transition
+"
     />
   </div>
 )}
