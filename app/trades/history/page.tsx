@@ -181,8 +181,8 @@ export default function TradeHistoryPage() {
         }
       }}
       className="
-  w-full
-  max-h-40
+  w-[85%]
+  mx-auto
   rounded-xl
   border border-white/[0.06]
   object-cover
